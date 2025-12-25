@@ -1,0 +1,7 @@
+{
+  "name": "get-media-signed-url",
+  "version": "1.0.0",
+  "description": "Edge Function for generating signed URLs for private media access",
+  "importMap": "./import_map.json",
+  "verify_jwt": true
+}

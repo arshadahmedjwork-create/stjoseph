@@ -1,0 +1,7 @@
+{
+  "name": "submit-alumni-memory",
+  "version": "1.0.0",
+  "description": "Edge Function for validating and submitting alumni memories",
+  "importMap": "./import_map.json",
+  "verify_jwt": false
+}

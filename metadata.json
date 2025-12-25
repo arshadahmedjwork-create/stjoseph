@@ -1,0 +1,7 @@
+{
+  "name": "St. Joseph's Alumni Tribute Portal",
+  "description": "A portal for the alumni of St. Joseph's Educational Society to submit messages, voice notes, and photos for the 60-year commemorative heritage book and digital archive.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
