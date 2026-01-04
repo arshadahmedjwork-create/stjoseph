@@ -76,21 +76,9 @@ export function HeroCTA() {
           </motion.div>
 
           {/* Microcopy */}
-          <motion.p
-            className="mt-3 text-xs text-white/70"
-            variants={fadeInUp}
-          >
-            Takes under 2 minutes. Your submission is reviewed before publishing.
-          </motion.p>
 
-          {/* Helper link */}
-          <motion.a
-            href="#impact"
-            className="mt-3 inline-block text-xs font-medium text-white/80 underline underline-offset-4 transition-colors hover:text-white"
-            variants={fadeInUp}
-          >
-            What happens after I submit?
-          </motion.a>
+
+
         </div>
       </motion.div>
     </section>

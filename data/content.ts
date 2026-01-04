@@ -10,8 +10,7 @@ export const content = {
     body: "To commemorate our 60th milestone, we are releasing a heritage book to capture the history, memories, and stories of our incredible community. Your contribution is invaluable.",
     ctaLabel: "Share Your Memory",
     ctaHelper: "Message, photo, or voice note",
-    trustLine: "Takes under 2 minutes. Your submission is reviewed before publishing.",
-    secondaryLink: "What happens after I submit?",
+
   },
   legacy: {
     title: {
