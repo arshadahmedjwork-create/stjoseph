@@ -1,54 +1,120 @@
-/* TailwindCSS base styles */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom animations */
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
+/* St. Joseph's Educational Society Design System
+   60/30/10 Color Ratio - All colors in HSL format
+*/
+
+@layer base {
+  :root {
+    /* Primary Blue (60%) */
+    --primary: 224 84% 55%;
+    --primary-deep: 224 80% 34%;
+    --primary-soft: 224 100% 97%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Neutral Whites (30%) */
+    --background: 0 0% 100%;
+    --foreground: 220 53% 8%;
+    --surface: 0 0% 100%;
+    --surface-soft: 224 33% 98%;
+    --border: 224 30% 92%;
+
+    /* Accent Gold (10%) */
+    --accent: 43 74% 52%;
+    --accent-foreground: 224 80% 34%;
+
+    /* Text */
+    --text-primary: 220 53% 8%;
+    --text-secondary: 215 16% 34%;
+
+    /* UI Elements */
+    --card: 0 0% 100%;
+    --card-foreground: 220 53% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 53% 8%;
+    --secondary: 224 100% 97%;
+    --secondary-foreground: 224 80% 34%;
+    --muted: 224 33% 98%;
+    --muted-foreground: 215 16% 34%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders & Rings */
+    --input: 224 30% 92%;
+    --ring: 43 74% 52%;
+
+    /* Radius */
+    --radius: 0.875rem;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px hsla(220, 53%, 8%, 0.06);
+    --shadow-md: 0 8px 24px hsla(220, 53%, 8%, 0.08);
+    --shadow-lg: 0 12px 32px hsla(220, 53%, 8%, 0.12);
+
+    /* Sidebar (inherited) */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 224 84% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 224 100% 97%;
+    --sidebar-accent-foreground: 224 84% 55%;
+    --sidebar-border: 224 30% 92%;
+    --sidebar-ring: 224 84% 55%;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  .dark {
+    --background: 220 53% 8%;
+    --foreground: 0 0% 100%;
+    --card: 220 53% 12%;
+    --card-foreground: 0 0% 100%;
+    --popover: 220 53% 12%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 224 84% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 224 32% 20%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 224 32% 20%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 43 74% 52%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 224 32% 20%;
+    --input: 224 32% 20%;
+    --ring: 43 74% 52%;
+    --sidebar-background: 220 53% 10%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 224 84% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 224 32% 20%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 224 32% 20%;
+    --sidebar-ring: 224 84% 60%;
   }
 }
 
-.animate-fade-in {
-  animation: fade-in 0.3s ease-out;
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
 }
 
-/* Smooth transitions for all interactive elements */
-button, input, select, textarea {
-  transition: all 0.2s ease-in-out;
-}
-
-/* Custom scrollbar for better UX */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
-
-/* Audio player styling */
-audio {
-  width: 100%;
-  height: 40px;
-}
-
-audio::-webkit-media-controls-panel {
-  background-color: #f3f4f6;
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
 }

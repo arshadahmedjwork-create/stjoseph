@@ -1,16 +1,43 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import { supabase } from '../../../services/supabaseClient';
 
 interface AdminNavProps {
   onLogout: () => void;
 }
 
 const AdminNav: React.FC<AdminNavProps> = ({ onLogout }) => {
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+
+  useEffect(() => {
+    checkRole();
+  }, []);
+
+  const checkRole = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    interface AdminProfile {
+      role: 'admin' | 'super_admin' | 'reviewer';
+    }
+
+    if (user) {
+      const { data } = await supabase
+        .from('admin_profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      const profile = data as AdminProfile | null;
+
+      if (profile && profile.role === 'super_admin') {
+        setIsSuperAdmin(true);
+      }
+    }
+  };
+
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-      isActive
-        ? 'bg-blue-700 text-white'
-        : 'text-blue-100 hover:bg-blue-600 hover:text-white'
+    `px-4 py-2 rounded-md text-sm font-medium transition-colors ${isActive
+      ? 'bg-blue-700 text-white'
+      : 'text-blue-100 hover:bg-blue-600 hover:text-white'
     }`;
 
   return (
@@ -24,9 +51,11 @@ const AdminNav: React.FC<AdminNavProps> = ({ onLogout }) => {
             <NavLink to="/admin/submissions" className={navLinkClass}>
               Submissions
             </NavLink>
-            <NavLink to="/admin/admins" className={navLinkClass}>
-              Admins
-            </NavLink>
+            {isSuperAdmin && (
+              <NavLink to="/admin/admins" className={navLinkClass}>
+                Manage Admins
+              </NavLink>
+            )}
             <NavLink to="/admin/export" className={navLinkClass}>
               Export
             </NavLink>

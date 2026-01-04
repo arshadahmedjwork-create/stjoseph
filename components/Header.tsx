@@ -1,4 +1,3 @@
-
 import React from 'react';
 import logo from '../logo_stjm.png';
 
@@ -20,4 +19,4 @@ const Header: React.FC = () => {
   );
 };
 
-export default Header;
+export default Header; 

@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { AlumniSubmission, ReviewStatus } from '../../../types';
 import { INSTITUTION_OPTIONS } from '../../../constants';
 import { XIcon } from '../../../components/Icons';
@@ -13,10 +14,10 @@ interface SubmissionDetailModalProps {
 
 // Moved outside to prevent re-creation on render
 const DetailItem: React.FC<{ label: string, value: React.ReactNode }> = ({ label, value }) => (
-  <div>
-    <dt className="text-sm font-medium text-slate-500">{label}</dt>
-    <dd className="mt-1 text-sm text-slate-900">{value}</dd>
-  </div>
+    <div>
+        <dt className="text-sm font-medium text-slate-500">{label}</dt>
+        <dd className="mt-1 text-sm text-slate-900">{value}</dd>
+    </div>
 );
 
 const SubmissionDetailModal: React.FC<SubmissionDetailModalProps> = ({ submission, onClose, onSave }) => {
@@ -27,71 +28,71 @@ const SubmissionDetailModal: React.FC<SubmissionDetailModalProps> = ({ submissio
     const [isLoadingMedia, setIsLoadingMedia] = useState(false);
 
     useEffect(() => {
-      // Add/remove class to body to prevent scrolling when modal is open
-      document.body.classList.add('overflow-hidden');
-      
-      // Load signed URLs for audio and video
-      loadMediaSignedUrls();
-      
-      return () => {
-        document.body.classList.remove('overflow-hidden');
-      };
+        // Add/remove class to body to prevent scrolling when modal is open
+        document.body.classList.add('overflow-hidden');
+
+        // Load signed URLs for audio and video
+        loadMediaSignedUrls();
+
+        return () => {
+            document.body.classList.remove('overflow-hidden');
+        };
     }, []);
 
     const loadMediaSignedUrls = async () => {
-      const paths: string[] = [];
-      
-      if (submission.audioFileUrl) {
-        paths.push(submission.audioFileUrl);
-      }
-      if (submission.videoFileUrl) {
-        paths.push(submission.videoFileUrl);
-      }
-      
-      if (paths.length === 0) return;
-      
-      setIsLoadingMedia(true);
-      
-      try {
-        const { data: sessionData } = await supabase.auth.getSession();
-        const token = sessionData.session?.access_token;
-        
-        if (!token) {
-          console.error('No auth token available');
-          return;
+        const paths: string[] = [];
+
+        if (submission.audioFileUrl) {
+            paths.push(submission.audioFileUrl);
         }
-        
-        const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-media-signed-url`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`,
-            },
-            body: JSON.stringify({ paths, expiresIn: 3600 }), // 1 hour expiry
-          }
-        );
-        
-        if (!response.ok) {
-          throw new Error('Failed to get signed URLs');
+        if (submission.videoFileUrl) {
+            paths.push(submission.videoFileUrl);
         }
-        
-        const data = await response.json();
-        
-        if (submission.audioFileUrl && data.signedUrls[submission.audioFileUrl]) {
-          setAudioSignedUrl(data.signedUrls[submission.audioFileUrl]);
+
+        if (paths.length === 0) return;
+
+        setIsLoadingMedia(true);
+
+        try {
+            const { data: sessionData } = await supabase.auth.getSession();
+            const token = sessionData.session?.access_token;
+
+            if (!token) {
+                console.error('No auth token available');
+                return;
+            }
+
+            const response = await fetch(
+                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-media-signed-url`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ paths, expiresIn: 3600 }), // 1 hour expiry
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error('Failed to get signed URLs');
+            }
+
+            const data = await response.json();
+
+            if (submission.audioFileUrl && data.signedUrls[submission.audioFileUrl]) {
+                setAudioSignedUrl(data.signedUrls[submission.audioFileUrl]);
+            }
+
+            if (submission.videoFileUrl && data.signedUrls[submission.videoFileUrl]) {
+                setVideoSignedUrl(data.signedUrls[submission.videoFileUrl]);
+            }
+
+        } catch (error) {
+            console.error('Failed to load media signed URLs:', error);
+        } finally {
+            setIsLoadingMedia(false);
         }
-        
-        if (submission.videoFileUrl && data.signedUrls[submission.videoFileUrl]) {
-          setVideoSignedUrl(data.signedUrls[submission.videoFileUrl]);
-        }
-        
-      } catch (error) {
-        console.error('Failed to load media signed URLs:', error);
-      } finally {
-        setIsLoadingMedia(false);
-      }
     };
 
     const handleSave = () => {
@@ -102,59 +103,88 @@ const SubmissionDetailModal: React.FC<SubmissionDetailModalProps> = ({ submissio
         try {
             const { data: sessionData } = await supabase.auth.getSession();
             const token = sessionData.session?.access_token;
-            
+
             if (!token) {
                 alert('Not authenticated');
                 return;
             }
-            
-            const response = await fetch(
-                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/export-single-submission?id=${submission.id}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                    },
-                }
-            );
-            
+
+            const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+            const url = `${supabaseUrl}/functions/v1/export-single-submission?id=${submission.id}`;
+
+            console.log('Fetching submission data...');
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+                },
+            });
+
             if (!response.ok) {
-                throw new Error('Download failed');
+                const errorText = await response.text();
+                // Try to parse error as JSON if possible
+                try {
+                    const errorJson = JSON.parse(errorText);
+                    console.error('Download failed:', errorJson);
+                    throw new Error(errorJson.error || errorJson.details || errorText);
+                } catch (e) {
+                    console.error('Download failed (text):', errorText);
+                    throw new Error(`Download failed: ${response.status} ${response.statusText}`);
+                }
             }
-            
+
+            // Handle ZIP download
             const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
+            const downloadUrl = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url;
-            a.download = `${submission.rollNumber}_${submission.fullName}.zip`;
+            a.href = downloadUrl;
+
+            // Try to get filename from header or construct fallback
+            const contentDisposition = response.headers.get('content-disposition');
+            let filename = `${submission.rollNumber}_${submission.fullName}.zip`;
+
+            if (contentDisposition) {
+                const match = contentDisposition.match(/filename="?([^"]+)"?/);
+                if (match && match[1]) {
+                    filename = match[1];
+                }
+            }
+
+            a.download = filename;
             document.body.appendChild(a);
             a.click();
-            window.URL.revokeObjectURL(url);
+            window.URL.revokeObjectURL(downloadUrl);
             document.body.removeChild(a);
+
+            // alert('Download started!');
+
+            toast.success('ZIP file downloaded successfully');
         } catch (error) {
             console.error('Download error:', error);
-            alert('Failed to download submission');
+            toast.error(`Failed to download submission: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     };
 
     const institutionLabel = INSTITUTION_OPTIONS.find(opt => opt.value === submission.institution)?.label || submission.institution;
 
     return (
-        <div 
+        <div
             className="fixed inset-0 bg-black bg-opacity-60 z-40 flex items-center justify-center p-4"
             aria-labelledby="modal-title"
             role="dialog"
             aria-modal="true"
             onClick={onClose}
         >
-            <div 
+            <div
                 className="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto transform transition-all"
                 onClick={e => e.stopPropagation()}
             >
                 <div className="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center z-10">
                     <h2 id="modal-title" className="text-xl font-bold text-slate-800">Submission Details</h2>
                     <div className="flex items-center space-x-2">
-                        <button 
+                        <button
                             onClick={handleDownload}
                             className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
                             title="Download as ZIP"

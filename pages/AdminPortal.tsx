@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './AdminPortal/LoginPage';
+import ResetPasswordPage from './AdminPortal/ResetPasswordPage';
 import DashboardPage from './AdminPortal/DashboardPage';
 import SubmissionsPage from './AdminPortal/SubmissionsPage';
 import AdminsPage from './AdminPortal/AdminsPage';
@@ -35,8 +36,14 @@ const AdminPortal: React.FC = () => {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAuthenticated(!!session);
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        setIsAuthenticated(false);
+      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        if (event === 'SIGNED_IN' && !isAuthenticated) {
+          // Logic handled by useEffect or LoginPage
+        }
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -47,8 +54,13 @@ const AdminPortal: React.FC = () => {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setIsAuthenticated(false);
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setIsAuthenticated(false);
+    }
   };
 
   if (loading) {
@@ -63,6 +75,7 @@ const AdminPortal: React.FC = () => {
     return (
       <Routes>
         <Route path="/login" element={<LoginPage onLoginSuccess={handleLoginSuccess} />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/*" element={<Navigate to="/admin/login" />} />
       </Routes>
     );
@@ -80,3 +93,5 @@ const AdminPortal: React.FC = () => {
 };
 
 export default AdminPortal;
+
+
